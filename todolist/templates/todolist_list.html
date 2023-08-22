@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ToDo List</title>
+    <link rel="stylesheet" href="{% static 'styles.css' %}">
+</head>
+<body>
+    <h1>ToDo List</h1>
+    <form action="/add" method = "post">{% csrf_token %}
+        <input type="text" name="title">
+        <input type="submit" value="Add Task">
+    </form>
+    <ul>
+        {% for task in tasks %}
+        <li>
+            <form action="/change_status/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
+                {{ task.title }}
+                <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %}
+                onchange="updateTaskStatus(this, '{{ task.id }}')">
+            </form>
+            {{ task.created_at }}
+            <form action="/edit_title/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
+                <input type="text" name="title" value="{{ task.title }}">
+                <input type="submit" value="Edit Title">
+            </form>
+            <form action="/delete/{{ task.id }}" method = "post">{% csrf_token %}
+            <input type="submit" value="Delete">
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+<script>
+  function updateTaskStatus(checkbox, taskId) {
+    const formData = new FormData();
+    formData.append("completed", checkbox.checked);
+
+    fetch(`/change_status/${taskId}`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Jeśli jesteś zainteresowany odpowiedzią z serwera,
+        // możesz wykonać odpowiednie działania tutaj.
+      });
+  }
+
+  function updateTaskTitle(input, taskId) {
+    const formData = new FormData();
+    formData.append("title", input.value);
+
+    fetch(`/edit_title/${taskId}`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // Jeśli jesteś zainteresowany odpowiedzią z serwera,
+        // możesz wykonać odpowiednie działania tutaj.
+      });
+  }
+
+
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+
+</script>
+</body>
+</html>
+
+
+

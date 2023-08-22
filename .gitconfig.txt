@@ -1,0 +1,5 @@
+[core]
+ autocrlf = true
+[user]
+ name = w4ts00n
+ email = watsonszef@int.pl
