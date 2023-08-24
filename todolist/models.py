@@ -2,7 +2,7 @@ from django.db import models
 from djongo import models as djongo_models
 
 
-class Note(models.Model):
+class Task(models.Model):
     _id = djongo_models.ObjectIdField(primary_key=True)
     title = models.CharField(max_length=200)
     completed = models.BooleanField(default=False)

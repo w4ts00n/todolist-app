@@ -1,11 +1,11 @@
 from django.http import HttpResponseRedirect, JsonResponse
 from bson import ObjectId
 from django.shortcuts import render
-from .models import Note
+from .models import Task
 
 
 def task_list(request):
-    tasks = Note.objects.all()
+    tasks = Task.objects.all()
     tasks_with_id = [
         {
             "id": str(tasks[task_number]._id),
@@ -20,21 +20,21 @@ def task_list(request):
 
 def add(request):
     title_from_request = request.POST["title"]
-    new_item = Note(title=title_from_request)
+    new_item = Task(title=title_from_request)
     new_item.save()
     return HttpResponseRedirect("/")
 
 
 def delete(request, i):
     task_id_from_request = ObjectId(i)
-    task = Note.objects.get(_id=task_id_from_request)
+    task = Task.objects.get(_id=task_id_from_request)
     task.delete()
     return HttpResponseRedirect("/")
 
 
 def change_status(request, i):
     task_id_from_request = ObjectId(i)
-    task = Note.objects.get(_id=task_id_from_request)
+    task = Task.objects.get(_id=task_id_from_request)
 
     task.completed = request.POST.get("completed") == "true"
     task.save()
@@ -44,7 +44,7 @@ def change_status(request, i):
 
 def edit_title(request, i):
     task_id_from_request = ObjectId(i)
-    task = Note.objects.get(_id=task_id_from_request)
+    task = Task.objects.get(_id=task_id_from_request)
 
     new_title = request.POST.get("title")
     task.title = new_title
