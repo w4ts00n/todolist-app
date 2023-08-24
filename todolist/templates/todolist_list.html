@@ -12,24 +12,24 @@
         <input type="submit" value="Add Task">
     </form>
     <ul>
-        {% for task in tasks %}
-        <li>
-            <form action="/change_status/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
-                {{ task.title }}
-                <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %}
-                onchange="updateTaskStatus(this, '{{ task.id }}')">
-            </form>
-            {{ task.created_at }}
-            <form action="/edit_title/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
-                <input type="text" name="title" value="{{ task.title }}">
-                <input type="submit" value="Edit Title">
-            </form>
-            <form action="/delete/{{ task.id }}" method = "post">{% csrf_token %}
-            <input type="submit" value="Delete">
-            </form>
-        </li>
-        {% endfor %}
-    </ul>
+    {% for task in tasks %}
+    <li>
+        <div>
+            <span class="task-title" data-taskid="{{ task.id }}">{{ task.title }}</span>
+            <button class="small-button" data-taskid="{{ task.id }}">Edit Title</button>
+        </div>
+        <form action="/change_status/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
+            <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %}
+            onchange="updateTaskStatus(this, '{{ task.id }}')">
+        </form>
+        {{ task.created_at }}
+        <form action="/delete/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
+            <input type="submit" value="Delete" class="small-button">
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+
 <script>
   function updateTaskStatus(checkbox, taskId) {
     const formData = new FormData();
@@ -49,23 +49,41 @@
       });
   }
 
-  function updateTaskTitle(input, taskId) {
-    const formData = new FormData();
-    formData.append("title", input.value);
+ document.addEventListener("DOMContentLoaded", function () {
+        const editButtons = document.querySelectorAll(".edit-button");
+        const taskTitles = document.querySelectorAll(".task-title");
 
-    fetch(`/edit_title/${taskId}`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Jeśli jesteś zainteresowany odpowiedzią z serwera,
-        // możesz wykonać odpowiednie działania tutaj.
-      });
-  }
+        editButtons.forEach((button) => {
+            button.addEventListener("click", (event) => {
+                const taskId = button.getAttribute("data-taskid");
+                const taskTitle = document.querySelector(`[data-taskid="${taskId}"]`);
+                const newTitle = prompt("Enter the new title:");
+
+                if (newTitle !== null) {
+                    taskTitle.textContent = newTitle;
+                    updateTaskTitle(newTitle, taskId);
+                }
+            });
+        });
+    });
+
+    function updateTaskTitle(newTitle, taskId) {
+        const formData = new FormData();
+        formData.append("title", newTitle);
+
+        fetch(`/edit_title/${taskId}`, {
+            method: "POST",
+            body: formData,
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+            },
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            // Jeśli jesteś zainteresowany odpowiedzią z serwera,
+            // możesz wykonać odpowiednie działania tutaj.
+        });
+    }
 
 
   function getCookie(name) {
