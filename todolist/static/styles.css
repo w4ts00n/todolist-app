@@ -53,6 +53,12 @@ li:last-child {
   margin-right: 20px;
 }
 
+.delete-task-form {
+  display: flex;
+  align-items: center;
+  margin-right: 20px;
+}
+
 .task-title {
   flex: 1;
   margin-right: 20px;
@@ -89,3 +95,37 @@ li:last-child {
 .small-button:hover {
     background-color: #45a049; /* Kolor tła przy najechaniu myszką */
 }
+
+.group-select {
+    position: relative;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    color: #333;
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.group-select::after {
+    content: '\25BC'; /* Unicode dla strzałki w dół */
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.group-select:hover {
+    border-color: #4caf50;
+}
+
+.group-select:focus {
+    border-color: green;
+    box-shadow: 0 0 5px green;
+}
+
+
+
+

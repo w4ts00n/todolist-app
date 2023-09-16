@@ -4,105 +4,40 @@
 <head>
     <title>ToDo List</title>
     <link rel="stylesheet" href="{% static 'styles.css' %}">
+    <script src="{% static 'taskActions.js' %}"></script>
 </head>
 <body>
     <h1>ToDo List</h1>
-    <form action="/add" method = "post">{% csrf_token %}
+    <form action="/tasks" method = "post">{% csrf_token %}
         <input type="text" name="title">
         <input type="submit" value="Add Task">
+    </form>
+    <form action="/groups" method = "post">{% csrf_token %}
+        <input type="text" name="name">
+        <input type="submit" value="Add Group">
     </form>
     <ul>
     {% for task in tasks %}
     <li>
         <div>
             <span class="task-title" data-taskid="{{ task.id }}">{{ task.title }}</span>
-            <button class="small-button" data-taskid="{{ task.id }}">Edit Title</button>
+            <select class="group-select" data-taskid="{{ task.id }}">
+                <option value="" {% if task.group_id is none%}selected{% endif %}></option>
+                {% for group in groups %}
+                    <option value="{{ group.id }}" {% if group.id == task.group_id %}selected{% endif %}>{{ group.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="small-button edit-button" data-taskid="{{ task.id }}">Edit Title</button>
         </div>
-        <form action="/change_status/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
+        <form action="tasks/{{ task.id }}/status" method="post" class="task-form">{% csrf_token %}
             <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %}
             onchange="updateTaskStatus(this, '{{ task.id }}')">
         </form>
         {{ task.created_at }}
-        <form action="/delete/{{ task.id }}" method="post" class="task-form">{% csrf_token %}
-            <input type="submit" value="Delete" class="small-button">
-        </form>
+        <button class="small-button delete-task-form" data-taskid="{{ task.id }}">Delete</button>
     </li>
     {% endfor %}
 </ul>
-
-<script>
-  function updateTaskStatus(checkbox, taskId) {
-    const formData = new FormData();
-    formData.append("completed", checkbox.checked);
-
-    fetch(`/change_status/${taskId}`, {
-      method: "POST",
-      body: formData,
-      headers: {
-        "X-CSRFToken": getCookie("csrftoken"),
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        // Jeśli jesteś zainteresowany odpowiedzią z serwera,
-        // możesz wykonać odpowiednie działania tutaj.
-      });
-  }
-
- document.addEventListener("DOMContentLoaded", function () {
-        const editButtons = document.querySelectorAll(".edit-button");
-        const taskTitles = document.querySelectorAll(".task-title");
-
-        editButtons.forEach((button) => {
-            button.addEventListener("click", (event) => {
-                const taskId = button.getAttribute("data-taskid");
-                const taskTitle = document.querySelector(`[data-taskid="${taskId}"]`);
-                const newTitle = prompt("Enter the new title:");
-
-                if (newTitle !== null) {
-                    taskTitle.textContent = newTitle;
-                    updateTaskTitle(newTitle, taskId);
-                }
-            });
-        });
-    });
-
-    function updateTaskTitle(newTitle, taskId) {
-        const formData = new FormData();
-        formData.append("title", newTitle);
-
-        fetch(`/edit_title/${taskId}`, {
-            method: "POST",
-            body: formData,
-            headers: {
-                "X-CSRFToken": getCookie("csrftoken"),
-            },
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            // Jeśli jesteś zainteresowany odpowiedzią z serwera,
-            // możesz wykonać odpowiednie działania tutaj.
-        });
-    }
-
-
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== "") {
-      const cookies = document.cookie.split(";");
-      for (let i = 0; i < cookies.length; i++) {
-        const cookie = cookies[i].trim();
-        if (cookie.substring(0, name.length + 1) === name + "=") {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
-        }
-      }
-    }
-    return cookieValue;
-  }
-
-
-</script>
 </body>
 </html>
 
