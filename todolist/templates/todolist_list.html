@@ -8,36 +8,39 @@
 </head>
 <body>
     <h1>ToDo List</h1>
-    <form action="/tasks" method = "post">{% csrf_token %}
-        <input type="text" name="title">
+
+
+    <form id="task-form">
+        <input type="text" id="task-title">
         <input type="submit" value="Add Task">
     </form>
-    <form action="/groups" method = "post">{% csrf_token %}
-        <input type="text" name="name">
+
+
+    <!-- Formularz dodawania grupy -->
+    <form id="group-form">
+        <input type="text" id="group-name">
         <input type="submit" value="Add Group">
     </form>
-    <ul>
-    {% for task in tasks %}
-    <li>
-        <div>
-            <span class="task-title" data-taskid="{{ task.id }}">{{ task.title }}</span>
-            <select class="group-select" data-taskid="{{ task.id }}">
-                <option value="" {% if task.group_id is none%}selected{% endif %}></option>
-                {% for group in groups %}
-                    <option value="{{ group.id }}" {% if group.id == task.group_id %}selected{% endif %}>{{ group.name }}</option>
-                {% endfor %}
-            </select>
-            <button class="small-button edit-button" data-taskid="{{ task.id }}">Edit Title</button>
-        </div>
-        <form action="tasks/{{ task.id }}/status" method="post" class="task-form">{% csrf_token %}
-            <input type="checkbox" name="completed" {% if task.completed %}checked{% endif %}
-            onchange="updateTaskStatus(this, '{{ task.id }}')">
-        </form>
-        {{ task.created_at }}
-        <button class="small-button delete-task-form" data-taskid="{{ task.id }}">Delete</button>
-    </li>
-    {% endfor %}
-</ul>
+
+    <ul id="group-list">
+        <!-- Tutaj zostaną dynamicznie wygenerowane grupy -->
+    </ul>
+
+     <!-- Lista zadań -->
+    <ul id="task-list">
+        <!-- Tutaj zostaną dynamicznie wygenerowane zadania -->
+    </ul>
+
+    <!-- Lista grup -->
+
+
+    <script>
+        // Tutaj możesz umieścić kod JavaScript bezpośrednio w HTML, jeśli to potrzebne
+        // Ale najlepiej trzymać go w oddzielnym pliku i zaimportować go w nagłówku
+
+        // Kod JavaScript obsługujący dynamiczne generowanie listy zadań i grup
+        // Możesz dodać go w pliku taskActions.js
+    </script>
 </body>
 </html>
 
