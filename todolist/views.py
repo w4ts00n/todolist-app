@@ -27,9 +27,10 @@ class TaskView(APIView):
 
 
     def post(self, request):
-        title_from_request = request.POST["title"]
-        new_item = Task(title=title_from_request)
-        new_item.save()
+        #title_from_request = request.POST["title", ""]
+        title_from_request = request.data.get("title")
+        new_task = Task(title=title_from_request)
+        new_task.save()
         return Response(status=status.HTTP_201_CREATED)
 
 
@@ -46,7 +47,7 @@ class GroupView(APIView):
         return JsonResponse(groups_with_id,safe=False)
 
     def post(self, request):
-        name_from_request = request.POST["name"]
+        name_from_request = request.data.get("name")
         new_group = Group(name=name_from_request)
         new_group.save()
         return Response(status=status.HTTP_201_CREATED)

@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", function () {
               <div>
                 <span class="task-title" data-taskid="${task.id}">${task.title}</span>
                 <select class="group-select" data-taskid="${task.id}">
-                  <option value="" ${task.group_id === null ? "selected" : ""}></option>
+                    <option value="" ${task.group_id === null ? "selected" : ""}></option>
                 </select>
                 <button class="small-button edit-button" data-taskid="${task.id}">Edit Title</button>
               </div>
@@ -49,6 +49,9 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch((error) => console.error(error));
     }
+
+
+
 
 // ...
 
@@ -98,6 +101,8 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch((error) => console.error(error));
   });
+
+
 });
 
 // Function to get the CSRF token from cookies (you may need to adjust this)
