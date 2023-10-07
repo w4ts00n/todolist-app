@@ -33,6 +33,13 @@ class TaskView(APIView):
         new_task.save()
         return Response(status=status.HTTP_201_CREATED)
 
+    def delete(self, request):
+        task_id = request.data.get("task_id")
+        task_id_as_object_id = ObjectId(task_id)
+        task = Task.objects.get(_id=task_id_as_object_id)
+        task.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class GroupView(APIView):
     def get(self, request):
@@ -77,20 +84,6 @@ def task_list(request):
 
 
 @require_http_methods(["POST"])
-def add(request):
-    title_from_request = request.POST["title"]
-    new_item = Task(title=title_from_request)
-    new_item.save()
-    return HttpResponseRedirect("/")
-
-@require_http_methods(["DELETE"])
-def delete(request, task_id):
-    task_id_from_request = ObjectId(task_id)
-    task = Task.objects.get(_id=task_id_from_request)
-    task.delete()
-    return HttpResponseRedirect("/")
-
-@require_http_methods(["POST"])
 def change_status(request, task_id):
     task_id_from_request = ObjectId(task_id)
     task = Task.objects.get(_id=task_id_from_request)
@@ -111,12 +104,6 @@ def edit_title(request, task_id):
 
     return HttpResponseRedirect("/")
 
-@require_http_methods(["POST"])
-def add_group(request):
-    name_from_request = request.POST["name"]
-    new_group = Group(name=name_from_request)
-    new_group.save()
-    return HttpResponseRedirect("/")
 
 @require_http_methods(["POST"])
 def update_group(request, task_id):

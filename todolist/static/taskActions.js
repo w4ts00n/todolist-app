@@ -50,17 +50,45 @@ document.addEventListener("DOMContentLoaded", function () {
         .catch((error) => console.error(error));
     }
 
+    const taskList = document.getElementById("task-list");
+    taskList.addEventListener("click", function (e) {
+        if (e.target.classList.contains("delete-task-form")) {
+          const taskId = e.target.getAttribute("data-taskid");
+          deleteTask(taskId);
+        }
+    });
 
-
+    function deleteTask(taskId) {
+    fetch(`/tasks`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": getCookie("csrftoken"),
+      },
+      body: JSON.stringify({ task_id: taskId }), // Przekazanie identyfikatora zadania w ciele żądania
+    })
+      .then((response) => {
+        if (response.status === 204) {
+          // Task deleted successfully, update the task list
+          fetchTasksAndGroups();
+        } else if (response.status === 404) {
+          // Task not found, handle error as needed
+          console.error("Task not found.");
+        } else {
+          // Handle other errors
+          console.error("Error deleting task.");
+        }
+      })
+      .catch((error) => console.error(error));
+  }
 
 // ...
-
-      // ...
+    // ...
 
   // Call the fetchTasksAndGroups function to populate the lists initially
   fetchTasksAndGroups();
 
-  // Event listener for adding a task
+    // Event listener for adding a task
   const taskForm = document.getElementById("task-form");
   taskForm.addEventListener("submit", function (e) {
     e.preventDefault();
@@ -101,8 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch((error) => console.error(error));
   });
-
-
 });
 
 // Function to get the CSRF token from cookies (you may need to adjust this)

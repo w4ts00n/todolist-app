@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from todolist.views import (add, delete, task_list, change_status, edit_title, add_group, update_group, TaskView,
+from todolist.views import (task_list, change_status, edit_title, update_group, TaskView,
                             GroupView)
 
 urlpatterns = [
@@ -26,7 +26,6 @@ urlpatterns = [
     path("", task_list, name="task_list"),
     path("tasks", TaskView.as_view(), name='tasks'),
     path("groups", GroupView.as_view(), name='groups'),
-    path("tasks/<str:task_id>", delete),
     path("tasks/<str:task_id>/status", change_status),
     path("tasks/<str:task_id>/title", edit_title),
     path("tasks/<str:task_id>/group", update_group)
