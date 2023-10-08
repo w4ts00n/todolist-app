@@ -17,13 +17,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from todolist.views import (task_list, change_status, edit_title, update_group, TaskView,
+from todolist.views import (render_main_page, change_status, edit_title, update_group, TaskView,
                             GroupView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     # path('', include('todolist.urls')),
-    path("", task_list, name="task_list"),
+    path("", render_main_page, name="render_main_page"),
     path("tasks", TaskView.as_view(), name='tasks'),
     path("groups", GroupView.as_view(), name='groups'),
     path("tasks/<str:task_id>/status", change_status),

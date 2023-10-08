@@ -23,11 +23,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 </select>
                 <button class="small-button edit-button" data-taskid="${task.id}">Edit Title</button>
               </div>
-              <form action="tasks/${task.id}/status" method="post" class="task-form">
-                <input type="checkbox" name="completed" ${
-                  task.completed ? "checked" : ""
-                } onchange="updateTaskStatus(this, '${task.id}')">
-              </form>
+
+                <input type="checkbox" data-taskid="${task.id}" name="completed" ${task.completed ? "checked" : ""}>
+              
               ${task.created_at}
               <button class="small-button delete-task-form" data-taskid="${task.id}">Delete</button>
             `;
@@ -57,6 +55,96 @@ document.addEventListener("DOMContentLoaded", function () {
           deleteTask(taskId);
         }
     });
+
+    taskList.addEventListener("click", function (e) {
+      if (e.target.classList.contains("edit-button")) {
+        const taskId = e.target.getAttribute("data-taskid");
+        const newTitle = prompt("Enter new title:"); // Pop-up do wprowadzenia nowego tytułu
+        if (newTitle !== null) {
+          editTaskTitle(taskId, newTitle);
+        }
+      }
+    });
+
+    taskList.addEventListener("change", function (e) {
+      if (e.target.classList.contains("group-select")) {
+        const taskId = e.target.getAttribute("data-taskid");
+        const groupId = e.target.value;
+        updateTaskGroup(taskId, groupId);
+      }
+    });
+
+    taskList.addEventListener("change", function (e) {
+      if (e.target.type === "checkbox") {
+          console.log(e.target.body)
+        const taskId = e.target.getAttribute("data-taskid");
+        const completed = e.target.checked;
+        updateTaskStatus(taskId, completed);
+      }
+    });
+
+    function editTaskTitle(taskId, newTitle) {
+      fetch(`/tasks/${taskId}/title`, {
+        method: "POST",
+        body: JSON.stringify({ title: newTitle }),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            // Tytuł zadania został zaktualizowany pomyślnie, odśwież listę zadań
+            fetchTasksAndGroups();
+          } else {
+            // Obsłuż błąd
+            console.error("Error editing task title.");
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+
+    function updateTaskGroup(taskId, groupId) {
+      fetch(`/tasks/${taskId}/group`, {
+        method: "POST",
+        body: JSON.stringify({ group_id: groupId }),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            // Grupa zadania została zaktualizowana pomyślnie, odśwież listę zadań
+            fetchTasksAndGroups();
+          } else {
+            // Obsłuż błąd
+            console.error("Error updating task group.");
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+
+    function updateTaskStatus(taskId, completed) {
+      fetch(`/tasks/${taskId}/status`, {
+        method: "POST",
+        body: JSON.stringify({ completed }),
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken"),
+        },
+      })
+        .then((response) => {
+          if (response.status === 200) {
+            // Status zadania został zaktualizowany pomyślnie, odśwież listę zadań
+            fetchTasksAndGroups();
+          } else {
+            // Obsłuż błąd
+            console.error("Error updating task status.");
+          }
+        })
+        .catch((error) => console.error(error));
+    }
 
     function deleteTask(taskId) {
     fetch(`/tasks`, {
