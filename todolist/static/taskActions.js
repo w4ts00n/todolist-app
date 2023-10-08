@@ -6,43 +6,68 @@ document.addEventListener("DOMContentLoaded", function () {
     // ...
 
 // Function to fetch tasks and groups and populate the lists
-    function fetchTasksAndGroups() {
-      // Fetch tasks and groups simultaneously
-        Promise.all([fetch("/tasks").then((response) => response.json()), fetch("/groups").then((response) => response.json())])
-            .then(([tasks, groups]) => {
-            const taskList = document.getElementById("task-list");
-            taskList.innerHTML = ""; // Clear the existing list
+
+
+
+    function clearElementInnerHTML(element){
+        element.innerHTML = ""
+        return element
+    }
+
+    function createTaskFromData(taskData){
+         const taskHtmlElement = document.createElement("li");
+
+         taskHtmlElement.innerHTML = `
+         <div>
+             <span class="task-title" data-taskid="${taskData.id}">${taskData.title}</span>
+             <select class="group-select" data-taskid="${taskData.id}">
+                 <option value="" ${taskData.group_id === null ? "selected" : ""}></option>
+             </select>
+             <button class="small-button edit-button" data-taskid="${taskData.id}">Edit Title</button>
+         </div>
+         <input type="checkbox" data-taskid="${taskData.id}" name="completed" ${taskData.completed ? "checked" : ""}>
+             ${taskData.created_at} <!-- here goes task creation date time !-->
+             <button class="small-button delete-task-form" data-taskid="${taskData.id}">Delete</button>
+         `;
+
+         return taskHtmlElement
+    }
+
+    function createGroupOptionForTaskGroupsDropdown(groupData, taskHtmlElementGroupId){
+        const option = document.createElement("option");
+        option.value = groupData.id;
+        option.text = groupData.name;
+
+        if (groupData.id === taskHtmlElementGroupId)
+          option.selected = true; // Set this option as default if it matches the task's groupData
+
+        return option
+    }
+
+    function populateTaskHtmlElementGroupsDropdown(taskHtmlElement, groupsDataList){
+        const groupSelect = taskHtmlElement.querySelector(".group-select");
+        groupsDataList.forEach((groupData) => {
+            const option = createGroupOptionForTaskGroupsDropdown(groupData, taskHtmlElement.group_id);
+            groupSelect.appendChild(option);
+        });
+    }
+
+    function fetchTasks(){
+        return fetch("/tasks").then((response) => response.json())
+    }
+    function fetchGroups(){
+        return fetch("/groups").then((response) => response.json())
+    }
+
+    function refreshTaskList() {
+        Promise.all([fetchTasks(), fetchGroups()]).then(([tasks, groups]) => {
+            let taskList = document.getElementById("task-list");
+            taskList = clearElementInnerHTML(taskList);
+
             tasks.forEach((task) => {
-            // Create a task element
-            const taskElement = document.createElement("li");
-            taskElement.innerHTML = `
-              <div>
-                <span class="task-title" data-taskid="${task.id}">${task.title}</span>
-                <select class="group-select" data-taskid="${task.id}">
-                    <option value="" ${task.group_id === null ? "selected" : ""}></option>
-                </select>
-                <button class="small-button edit-button" data-taskid="${task.id}">Edit Title</button>
-              </div>
-
-                <input type="checkbox" data-taskid="${task.id}" name="completed" ${task.completed ? "checked" : ""}>
-              
-              ${task.created_at}
-              <button class="small-button delete-task-form" data-taskid="${task.id}">Delete</button>
-            `;
-
-            // Populate the group dropdown with options and set the default selected option
-            const groupSelect = taskElement.querySelector(".group-select");
-            groups.forEach((group) => {
-              const option = document.createElement("option");
-              option.value = group.id;
-              option.text = group.name;
-              if (group.id === task.group_id) {
-                option.selected = true; // Set this option as default if it matches the task's group
-              }
-              groupSelect.appendChild(option);
-            });
-
-            taskList.appendChild(taskElement);
+                const taskHtmlElement = createTaskFromData(task);
+                populateTaskHtmlElementGroupsDropdown(taskHtmlElement, groups);
+                taskList.appendChild(taskHtmlElement);
           });
         })
         .catch((error) => console.error(error));
@@ -95,7 +120,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => {
           if (response.status === 200) {
             // Tytuł zadania został zaktualizowany pomyślnie, odśwież listę zadań
-            fetchTasksAndGroups();
+            refreshTaskList();
           } else {
             // Obsłuż błąd
             console.error("Error editing task title.");
@@ -116,7 +141,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => {
           if (response.status === 200) {
             // Grupa zadania została zaktualizowana pomyślnie, odśwież listę zadań
-            fetchTasksAndGroups();
+            refreshTaskList();
           } else {
             // Obsłuż błąd
             console.error("Error updating task group.");
@@ -137,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
         .then((response) => {
           if (response.status === 200) {
             // Status zadania został zaktualizowany pomyślnie, odśwież listę zadań
-            fetchTasksAndGroups();
+            refreshTaskList();
           } else {
             // Obsłuż błąd
             console.error("Error updating task status.");
@@ -158,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then((response) => {
         if (response.status === 204) {
           // Task deleted successfully, update the task list
-          fetchTasksAndGroups();
+          refreshTaskList();
         } else if (response.status === 404) {
           // Task not found, handle error as needed
           console.error("Task not found.");
@@ -173,8 +198,8 @@ document.addEventListener("DOMContentLoaded", function () {
 // ...
     // ...
 
-  // Call the fetchTasksAndGroups function to populate the lists initially
-  fetchTasksAndGroups();
+  // Call the refreshTaskList function to populate the lists initially
+  refreshTaskList();
 
     // Event listener for adding a task
   const taskForm = document.getElementById("task-form");
@@ -192,7 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(() => {
         // Clear input field and update the task list
         document.getElementById("task-title").value = "";
-        fetchTasksAndGroups();
+        refreshTaskList();
       })
       .catch((error) => console.error(error));
   });
@@ -213,7 +238,7 @@ document.addEventListener("DOMContentLoaded", function () {
       .then(() => {
         // Clear input field and update the task list
         document.getElementById("group-name").value = "";
-        fetchTasksAndGroups();
+        refreshTaskList();
       })
       .catch((error) => console.error(error));
   });
