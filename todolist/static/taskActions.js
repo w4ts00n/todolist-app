@@ -1,14 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Function to fetch tasks and groups and populate the lists
-  // ...
-
-// Function to fetch tasks and groups and populate the lists
-    // ...
-
-// Function to fetch tasks and groups and populate the lists
-
-
-
     function clearElementInnerHTML(element){
         element.innerHTML = ""
         return element
@@ -17,6 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     function createTaskFromData(taskData){
          const taskHtmlElement = document.createElement("li");
 
+         const createdAt = new Date(taskData.created_at);
          taskHtmlElement.innerHTML = `
          <div>
              <span class="task-title" data-taskid="${taskData.id}">${taskData.title}</span>
@@ -26,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
              <button class="small-button edit-button" data-taskid="${taskData.id}">Edit Title</button>
          </div>
          <input type="checkbox" data-taskid="${taskData.id}" name="completed" ${taskData.completed ? "checked" : ""}>
-             ${taskData.created_at} <!-- here goes task creation date time !-->
+             ${createdAt.toLocaleString()} <!-- here goes task creation date time !-->
              <button class="small-button delete-task-form" data-taskid="${taskData.id}">Delete</button>
          `;
 
