@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function createTaskFromData(taskData){
          const taskHtmlElement = document.createElement("li");
+         taskHtmlElement.group_id = taskData.group_id;
 
          const createdAt = new Date(taskData.created_at);
          taskHtmlElement.innerHTML = `
@@ -17,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
              <button class="small-button edit-button" data-taskid="${taskData.id}">Edit Title</button>
          </div>
          <input type="checkbox" data-taskid="${taskData.id}" name="completed" ${taskData.completed ? "checked" : ""}>
-             ${createdAt.toLocaleString()} <!-- here goes task creation date time !-->
+             ${createdAt.toLocaleString()} <!-- here goes task creation date time -->
              <button class="small-button delete-task-form" data-taskid="${taskData.id}">Delete</button>
          `;
 
@@ -30,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function () {
         option.text = groupData.name;
 
         if (groupData.id === taskHtmlElementGroupId)
-          option.selected = true; // Set this option as default if it matches the task's groupData
+          option.selected = true;// Set this option as default if it matches the task's groupData
 
         return option
     }
