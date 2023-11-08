@@ -1,14 +1,16 @@
-import json
-
-from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
-from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
 from bson import ObjectId
 from django.shortcuts import render
 from .models import Task, Group
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from enum import Enum
 
+class TaskOperation(Enum):
+    CHANGE_STATUS = "change_status"
+    EDIT_TITLE = "edit_title"
+    UPDATE_GROUP = "update_group"
 
 class TaskView(APIView):
     def get(self, request):
@@ -27,11 +29,42 @@ class TaskView(APIView):
 
 
     def post(self, request):
-        #title_from_request = request.POST["title", ""]
         title_from_request = request.data.get("title")
         new_task = Task(title=title_from_request)
         new_task.save()
         return Response(status=status.HTTP_201_CREATED)
+
+    def patch(self, request):
+        task_id = request.data.get("task_id")
+        task_id_as_object_id = ObjectId(task_id)
+        task = Task.objects.get(_id=task_id_as_object_id)
+
+        operation = request.data.get("operation")
+
+        if operation == TaskOperation.CHANGE_STATUS.value:
+            completed = request.data.get("completed")
+            task.completed = completed
+            task.save()
+            return Response(status=status.HTTP_200_OK)
+
+        elif operation == TaskOperation.EDIT_TITLE.value:
+            new_title = request.data.get("title")
+            task.title = new_title
+            task.save()
+            return Response(status=status.HTTP_200_OK)
+
+        elif operation == TaskOperation.UPDATE_GROUP.value:
+            group_id = request.data.get("group_id")
+            if group_id:
+                task.group_id = group_id
+            else:
+                task.group_id = None
+            task.save()
+            return Response(status=status.HTTP_200_OK)
+
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
 
     def delete(self, request):
         task_id = request.data.get("task_id")
@@ -63,48 +96,3 @@ class GroupView(APIView):
 def render_main_page(request):
     return render(request, "todolist_list.html")
 
-
-@require_http_methods(["POST"])
-def change_status(request, task_id):
-    task_id_from_request = ObjectId(task_id)
-    task = Task.objects.get(_id=task_id_from_request)
-
-    data = json.loads(request.body.decode("utf-8"))
-    completed = data.get("completed")
-
-    #task.completed = request.POST.get("completed") == "true"
-    task.completed = completed
-    task.save()
-
-    return HttpResponse(status=200)
-
-@require_http_methods(["POST"])
-def edit_title(request, task_id):
-    task_id_from_request = ObjectId(task_id)
-    task = Task.objects.get(_id=task_id_from_request)
-
-    #new_title = request.POST.get("title")
-    data = json.loads(request.body.decode("utf-8"))
-    new_title = data.get("title")
-
-    task.title = new_title
-    task.save()
-
-    return HttpResponse(status=200)
-
-
-@require_http_methods(["POST"])
-def update_group(request, task_id):
-    task_id_from_request = ObjectId(task_id)
-    task = Task.objects.get(_id=task_id_from_request)
-
-    # group_id = request.POST.get("group_id")
-    data = json.loads(request.body.decode("utf-8"))
-    group_id = data.get("group_id")
-    if group_id:
-        task.group_id = group_id
-    else:
-        task.group_id = None
-    task.save()
-
-    return HttpResponse(status=200)

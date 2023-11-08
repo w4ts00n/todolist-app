@@ -101,9 +101,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     function editTaskTitle(taskId, newTitle) {
-      fetch(`/tasks/${taskId}/title`, {
-        method: "POST",
-        body: JSON.stringify({ title: newTitle }),
+      fetch(`/tasks`, {
+        method: "PATCH",
+        body: JSON.stringify({ task_id: taskId, operation: "edit_title",title: newTitle }),
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": getCookie("csrftoken"),
@@ -111,10 +111,9 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           if (response.status === 200) {
-            // Tytuł zadania został zaktualizowany pomyślnie, odśwież listę zadań
             refreshTaskList();
+
           } else {
-            // Obsłuż błąd
             console.error("Error editing task title.");
           }
         })
@@ -122,9 +121,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateTaskGroup(taskId, groupId) {
-      fetch(`/tasks/${taskId}/group`, {
-        method: "POST",
-        body: JSON.stringify({ group_id: groupId }),
+      fetch(`/tasks`, {
+        method: "PATCH",
+        body: JSON.stringify({ task_id: taskId, operation: "update_group", group_id: groupId }),
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": getCookie("csrftoken"),
@@ -132,10 +131,9 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           if (response.status === 200) {
-            // Grupa zadania została zaktualizowana pomyślnie, odśwież listę zadań
             refreshTaskList();
+
           } else {
-            // Obsłuż błąd
             console.error("Error updating task group.");
           }
         })
@@ -143,9 +141,9 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function updateTaskStatus(taskId, completed) {
-      fetch(`/tasks/${taskId}/status`, {
-        method: "POST",
-        body: JSON.stringify({ completed }),
+      fetch(`/tasks`, {
+        method: "PATCH",
+        body: JSON.stringify({ task_id: taskId, operation: "change_status", completed }),
         headers: {
           "Content-Type": "application/json",
           "X-CSRFToken": getCookie("csrftoken"),
@@ -153,10 +151,9 @@ document.addEventListener("DOMContentLoaded", function () {
       })
         .then((response) => {
           if (response.status === 200) {
-            // Status zadania został zaktualizowany pomyślnie, odśwież listę zadań
             refreshTaskList();
+
           } else {
-            // Obsłuż błąd
             console.error("Error updating task status.");
           }
         })
