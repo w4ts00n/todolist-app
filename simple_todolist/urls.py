@@ -2,7 +2,7 @@
 URL configuration for simple_todolist project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/4.2/topics/http/urls/
+    https://docs.djangoproject.com/en/4.2/topics/http/urls/j
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -15,16 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 
-from todolist.views import add, delete, task_list, change_status, edit_title
+from todolist.views import (render_main_page, TaskView, GroupView)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # path('', include('todolist.urls')),
-    path("", task_list, name="task_list"),
-    path("add", add),
-    path("delete/<str:i>", delete),
-    path("change_status/<str:i>", change_status),
-    path("edit_title/<str:i>", edit_title)
+    path("", render_main_page, name="render_main_page"),
+    path("tasks", TaskView.as_view(), name='tasks'),
+    path("groups", GroupView.as_view(), name='groups'),
 ]
